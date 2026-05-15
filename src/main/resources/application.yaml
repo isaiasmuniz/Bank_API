@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: bank-Api-restFull
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/bank_db?useTimezone=true&serverTimezone=UTC
+    username: root
+    password: adm123
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        show-sql: false
+        open-in-view: false
