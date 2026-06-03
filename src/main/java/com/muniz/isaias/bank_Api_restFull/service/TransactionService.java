@@ -69,7 +69,7 @@ public class TransactionService {
             entity.setDateHour(new Date());
             entity.setTargetAccount(targetAccount);
             entity.setOriginAccount(account);
-            if(account.getAccountBalance().compareTo(targetAccount.getAccountBalance()) >= 0){
+            if(account.getAccountBalance().compareTo(transaction.getValue()) >= 0){
                 account.setAccountBalance(account.getAccountBalance().subtract(transaction.getValue()));
             }else throw new BadRequestException("Insufficient account balance");
             targetAccount.setAccountBalance(targetAccount.getAccountBalance().add(transaction.getValue()));
