@@ -1,6 +1,7 @@
 package com.muniz.isaias.bank_Api_restFull.service;
 
 import com.muniz.isaias.bank_Api_restFull.dto.AccountDTO;
+import com.muniz.isaias.bank_Api_restFull.exception.BadRequestException;
 import com.muniz.isaias.bank_Api_restFull.exception.NotFoundException;
 import com.muniz.isaias.bank_Api_restFull.models.Account;
 import com.muniz.isaias.bank_Api_restFull.models.User;
@@ -45,6 +46,7 @@ public class AccountService {
         logger.info("Blocking Account");
         Account entity = repository.findById(id).orElseThrow(() -> new NotFoundException());
 
+        if (!entity.getStatus()) throw new BadRequestException("Account already blocked");
         entity.setStatus(false);
         return parseObject(repository.save(entity), AccountDTO.class);
     }
@@ -53,7 +55,8 @@ public class AccountService {
         logger.info("Unblocking Account");
         Account entity = repository.findById(id).orElseThrow(() -> new NotFoundException());
 
-        if (!entity.getStatus()) entity.setStatus(true);
+        if (entity.getStatus()) throw new BadRequestException("Active account");
+        entity.setStatus(true);
 
         return parseObject(repository.save(entity), AccountDTO.class);
     }
