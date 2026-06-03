@@ -1,5 +1,6 @@
 package com.muniz.isaias.bank_Api_restFull.controller;
 
+import com.muniz.isaias.bank_Api_restFull.dto.UserDTO;
 import com.muniz.isaias.bank_Api_restFull.models.Account;
 import com.muniz.isaias.bank_Api_restFull.models.User;
 import com.muniz.isaias.bank_Api_restFull.service.AccountService;
@@ -18,17 +19,17 @@ public class UserController {
     private AccountService accountService;
 
     @PostMapping
-    public User create(@RequestBody User user){
+    public UserDTO create(@RequestBody UserDTO user){
         return userService.createUser(user);
     }
 
     @PutMapping
-    public User update(@RequestBody User user){
+    public UserDTO update(@RequestBody UserDTO user){
         return userService.updateUser(user);
     }
 
     @GetMapping("/{id}")
-    public User findUserById(@PathVariable("id") Long id){
+    public UserDTO findUserById(@PathVariable("id") Long id){
         return userService.findUserById(id);
     }
 

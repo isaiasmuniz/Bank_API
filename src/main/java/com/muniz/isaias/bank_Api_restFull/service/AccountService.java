@@ -1,12 +1,17 @@
 package com.muniz.isaias.bank_Api_restFull.service;
 
+import com.muniz.isaias.bank_Api_restFull.dto.AccountDTO;
 import com.muniz.isaias.bank_Api_restFull.exception.NotFoundException;
 import com.muniz.isaias.bank_Api_restFull.models.Account;
 import com.muniz.isaias.bank_Api_restFull.models.User;
 import com.muniz.isaias.bank_Api_restFull.repository.AccountRepository;
 import com.muniz.isaias.bank_Api_restFull.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import static com.muniz.isaias.bank_Api_restFull.mapper.ObjectMapper.parseObject;
+import static com.muniz.isaias.bank_Api_restFull.mapper.ObjectMapper.parseListOfObjects;
 
 import java.math.BigDecimal;
 
@@ -19,10 +24,11 @@ public class AccountService {
     @Autowired
     UserRepository userRepository;
 
-    @Autowired
-    UserService service;
 
-    public Account createAccount(Long id){
+    private Logger logger = LoggerFactory.getLogger(AccountService.class.getName());
+
+    public AccountDTO createAccount(Long id){
+        logger.info("Creating account");
 
         User user = userRepository.findById(id).orElseThrow(() -> new NotFoundException());
 
@@ -32,27 +38,30 @@ public class AccountService {
         account.setStatus(true);
         account.setUser(user);
 
-        return repository.save(account);
+        return parseObject(repository.save(account), AccountDTO.class);
     }
 
-    public Account blockAccount(Long id){
+    public AccountDTO blockAccount(Long id){
+        logger.info("Blocking Account");
         Account entity = repository.findById(id).orElseThrow(() -> new NotFoundException());
 
         entity.setStatus(false);
-        return repository.save(entity);
+        return parseObject(repository.save(entity), AccountDTO.class);
     }
 
-    public Account unBlockAccount(Long id){
+    public AccountDTO unBlockAccount(Long id){
+        logger.info("Unblocking Account");
         Account entity = repository.findById(id).orElseThrow(() -> new NotFoundException());
 
         if (!entity.getStatus()) entity.setStatus(true);
 
-        return repository.save(entity);
+        return parseObject(repository.save(entity), AccountDTO.class);
     }
 
-    public Account findAccountById(Long id){
+    public AccountDTO findAccountById(Long id){
+        logger.info("Finding by Id");
         var entity = repository.findById(id).orElseThrow(() -> new NotFoundException());
 
-        return entity;
+        return parseObject(entity, AccountDTO.class);
     }
 }

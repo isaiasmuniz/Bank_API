@@ -1,13 +1,19 @@
 package com.muniz.isaias.bank_Api_restFull.service;
 
+import com.muniz.isaias.bank_Api_restFull.dto.AccountDTO;
+import com.muniz.isaias.bank_Api_restFull.dto.TransactionDTO;
 import com.muniz.isaias.bank_Api_restFull.exception.BadRequestException;
 import com.muniz.isaias.bank_Api_restFull.exception.NotFoundException;
 import com.muniz.isaias.bank_Api_restFull.models.Account;
 import com.muniz.isaias.bank_Api_restFull.models.Transaction;
 import com.muniz.isaias.bank_Api_restFull.repository.AccountRepository;
 import com.muniz.isaias.bank_Api_restFull.repository.TransactionRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import static com.muniz.isaias.bank_Api_restFull.mapper.ObjectMapper.parseObject;
+import static com.muniz.isaias.bank_Api_restFull.mapper.ObjectMapper.parseListOfObjects;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -22,47 +28,56 @@ public class TransactionService {
     @Autowired
     AccountRepository accountRepository;
 
-    public Transaction deposit(Transaction transaction, Long id){
-        if (transaction.getType().equalsIgnoreCase("deposit") && transaction.getValue().compareTo(BigDecimal.ZERO) > 0){
-            Account entity = getAccount(id);
+    private Logger logger = LoggerFactory.getLogger(TransactionService.class.getName());
 
-            transaction.setDateHour(new Date());
-            transaction.setOriginAccount(entity);
-            entity.setAccountBalance(entity.getAccountBalance().add(transaction.getValue()));
-            return repository.save(transaction);
+    public TransactionDTO deposit(TransactionDTO transaction, Long id){
+        logger.info("Depositing");
+        if (transaction.getType().equalsIgnoreCase("deposit") && transaction.getValue().compareTo(BigDecimal.ZERO) > 0){
+            Account account = getAccount(id);
+
+            Transaction entity = parseObject(transaction, Transaction.class);
+            entity.setDateHour(new Date());
+            entity.setOriginAccount(account);
+            account.setAccountBalance(account.getAccountBalance().add(entity.getValue()));
+            return parseObject(repository.save(entity), TransactionDTO.class);
         }else throw new BadRequestException("Transaction type invalid");
 
     }
 
-    public List<Transaction> viewHistory(Long accountId){
+    public List<TransactionDTO> viewHistory(Long accountId){
+        logger.info("Viewing history");
         getAccount(accountId);
 
-        return repository.findByOriginAccountAccountId(accountId);
+        return parseListOfObjects(repository.findByOriginAccountAccountId(accountId), TransactionDTO.class);
     }
 
-    public Transaction withdrawal(Transaction transaction, Long id){
-        Account entity = getAccount(id);
-        if (transaction.getType().equalsIgnoreCase("withdrawal") && transaction.getValue().compareTo(entity.getAccountBalance()) <= 0){
+    public TransactionDTO withdrawal(TransactionDTO transactionDTO, Long id){
+        logger.info("Withdrawing");
+        Account account = getAccount(id);
+        if (transactionDTO.getType().equalsIgnoreCase("withdrawal") && transactionDTO.getValue().compareTo(account.getAccountBalance()) <= 0){
 
-            transaction.setDateHour(new Date());
-            transaction.setTargetAccount(entity);
-            entity.setAccountBalance(entity.getAccountBalance().subtract(transaction.getValue()));
-            return repository.save(transaction);
+            Transaction entity = parseObject(transactionDTO, Transaction.class);
+            entity.setDateHour(new Date());
+            entity.setOriginAccount(account);
+            account.setAccountBalance(account.getAccountBalance().subtract(entity.getValue()));
+            return parseObject(repository.save(entity), TransactionDTO.class);
         }else throw new BadRequestException("Transaction type invalid");
     }
 
-    public Transaction bankTransfer(Transaction transaction, Long id, Long tagetId){
-        Account entity = getAccount(id);
-        if (transaction.getType().equalsIgnoreCase("transfer") && transaction.getValue().compareTo(entity.getAccountBalance()) <= 0){
+    public TransactionDTO bankTransfer(TransactionDTO transaction, Long id, Long tagetId){
+        logger.info("Transferring");
+        Account account = getAccount(id);
+        if (transaction.getType().equalsIgnoreCase("transfer") && transaction.getValue().compareTo(account.getAccountBalance()) <= 0){
             Account targetAccount = getAccount(tagetId);
 
 
-            transaction.setDateHour(new Date());
-            transaction.setTargetAccount(targetAccount);
-            transaction.setOriginAccount(entity);
+            var entity = parseObject(transaction, Transaction.class);
+            entity.setDateHour(new Date());
+            entity.setTargetAccount(targetAccount);
+            entity.setOriginAccount(account);
             targetAccount.setAccountBalance(targetAccount.getAccountBalance().add(transaction.getValue()));
-            entity.setAccountBalance(entity.getAccountBalance().subtract(transaction.getValue()));
-            return repository.save(transaction);
+            account.setAccountBalance(account.getAccountBalance().subtract(transaction.getValue()));
+            return parseObject(repository.save(entity), TransactionDTO.class);
         }else throw new BadRequestException("Transaction type invalid");
     }
 

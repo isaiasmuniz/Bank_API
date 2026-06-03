@@ -1,14 +1,17 @@
 package com.muniz.isaias.bank_Api_restFull.service;
 
-import com.muniz.isaias.bank_Api_restFull.exception.BadRequestException;
+import com.muniz.isaias.bank_Api_restFull.dto.UserDTO;
 import com.muniz.isaias.bank_Api_restFull.exception.NotFoundException;
-import com.muniz.isaias.bank_Api_restFull.models.Account;
 import com.muniz.isaias.bank_Api_restFull.models.User;
 import com.muniz.isaias.bank_Api_restFull.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
+import static com.muniz.isaias.bank_Api_restFull.mapper.ObjectMapper.parseListOfObjects;
+import static com.muniz.isaias.bank_Api_restFull.mapper.ObjectMapper.parseObject;
+
 import java.util.Date;
 
 @Service
@@ -17,28 +20,33 @@ public class UserService {
     @Autowired
     UserRepository repository;
 
-    public User createUser(User user){
-        user.setCreatinoDate(new Date());
+    private Logger logger = LoggerFactory.getLogger(UserService.class.getName());
 
-        return repository.save(user);
+    public UserDTO createUser(UserDTO user){
+
+        logger.info("Creating User");
+        var entity = parseObject(user, User.class);
+        entity.setCreationDate(new Date());
+
+        return parseObject(repository.save(entity), UserDTO.class);
     }
 
-    public User updateUser(User user){
-        User entity = repository.findById(user.getUserId()).orElseThrow(() -> new NotFoundException());
+    public UserDTO updateUser(UserDTO userDTO){
 
-        entity.setCreatinoDate(new Date());
-        entity.setEmail(user.getEmail());
-        entity.setName(user.getName());
-        entity.setPassword(user.getPassword());
-        entity.setAccounts(user.getAccounts());
+        logger.info("Updating a User");
+        var entity = repository.findById(userDTO.getUserId()).orElseThrow(() -> new NotFoundException());
 
-        return repository.save(entity);
+        entity.setEmail(userDTO.getEmail());
+        entity.setName(userDTO.getName());
+        entity.setPassword(userDTO.getPassword());
+
+        return parseObject(repository.save(entity), UserDTO.class);
     }
 
-    public User findUserById(Long id){
+    public UserDTO findUserById(Long id){
+        logger.info("Finding a User by id");
         var entity = repository.findById(id).orElseThrow(() -> new NotFoundException());
 
-        return entity;
+        return parseObject(entity, UserDTO.class);
     }
-
 }

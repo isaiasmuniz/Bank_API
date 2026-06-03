@@ -28,7 +28,7 @@ public class User {
 
     @Column
     @JsonFormat(pattern = "dd/MM/yyy HH:mm")
-    private Date creatinoDate;
+    private Date creationDate;
 
     @OneToMany(mappedBy = "user")
     @JsonIgnore
@@ -83,23 +83,23 @@ public class User {
         this.password = password;
     }
 
-    public Date getCreatinoDate() {
-        return creatinoDate;
+    public Date getCreationDate() {
+        return creationDate;
     }
 
-    public void setCreatinoDate(Date creatinoDate) {
-        this.creatinoDate = creatinoDate;
+    public void setCreationDate(Date creationDate) {
+        this.creationDate = creationDate;
     }
 
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return Objects.equals(userId, user.userId) && Objects.equals(name, user.name) && Objects.equals(email, user.email) && Objects.equals(password, user.password) && Objects.equals(creatinoDate, user.creatinoDate) && Objects.equals(accounts, user.accounts);
+        return Objects.equals(userId, user.userId) && Objects.equals(name, user.name) && Objects.equals(email, user.email) && Objects.equals(password, user.password) && Objects.equals(creationDate, user.creationDate) && Objects.equals(accounts, user.accounts);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(userId, name, email, password, creatinoDate, accounts);
+        return Objects.hash(userId, name, email, password, creationDate, accounts);
     }
 }

@@ -1,5 +1,6 @@
 package com.muniz.isaias.bank_Api_restFull.controller;
 
+import com.muniz.isaias.bank_Api_restFull.dto.TransactionDTO;
 import com.muniz.isaias.bank_Api_restFull.exception.BadRequestException;
 import com.muniz.isaias.bank_Api_restFull.models.Account;
 import com.muniz.isaias.bank_Api_restFull.models.Transaction;
@@ -19,24 +20,24 @@ public class TransactionController {
     TransactionService service;
 
     @PutMapping("/deposit/{id}")
-    public Transaction deposit(@RequestBody Transaction transaction,
-                               @PathVariable("id") Long id){
+    public TransactionDTO deposit(@RequestBody TransactionDTO transaction,
+                                  @PathVariable("id") Long id){
         return service.deposit(transaction, id);
     }
 
     @GetMapping("/{id}")
-    public List<Transaction> viewHistory(@PathVariable("id") Long id){
+    public List<TransactionDTO> viewHistory(@PathVariable("id") Long id){
         return service.viewHistory(id);
     }
 
     @PutMapping("/withdrawal/{id}")
-    public Transaction withdrawal(@RequestBody Transaction transaction,
+    public TransactionDTO withdrawal(@RequestBody TransactionDTO transaction,
                                   @PathVariable("id") Long id){
         return service.withdrawal(transaction, id);
     }
 
     @PutMapping("/transfer/{id}/{target_id}")
-    public Transaction bankTransfer(@RequestBody Transaction transaction,
+    public TransactionDTO bankTransfer(@RequestBody TransactionDTO transaction,
                                     @PathVariable("id") Long id,
                                     @PathVariable("target_id") Long targetId){
         return service.bankTransfer(transaction, id, targetId);
