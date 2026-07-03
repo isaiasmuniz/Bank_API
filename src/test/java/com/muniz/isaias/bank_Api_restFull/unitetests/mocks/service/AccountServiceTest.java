@@ -42,7 +42,6 @@ class AccountServiceTest {
     @BeforeEach
     void setUp(){
         input = new MockAccount();
-        MockitoAnnotations.openMocks(this);
     }
 
     @Test
@@ -66,6 +65,7 @@ class AccountServiceTest {
         assertEquals("User email 2", result.getUser().getEmail());
         assertEquals("Password 2", result.getUser().getPassword());
 
+        verify(repository).findById(2L);
     }
 
     @Test
@@ -89,6 +89,8 @@ class AccountServiceTest {
         assertEquals("User name 1", result.getUser().getName());
         assertEquals("User email 1", result.getUser().getEmail());
         assertEquals("Password 1", result.getUser().getPassword());
+
+        verify(repository).save(any(Account.class));
     }
 
     @Test
@@ -106,6 +108,9 @@ class AccountServiceTest {
         assertNotNull(result.getAccountId());
 
         assertFalse(result.isStatus());
+
+        verify(repository).findById(6L);
+        verify(repository).save(any(Account.class));
     }
 
     @Test
@@ -123,6 +128,9 @@ class AccountServiceTest {
         assertNotNull(result.getAccountId());
 
         assertTrue(result.isStatus());
+
+        verify(repository).findById(3L);
+        verify(repository).save(any(Account.class));
     }
 
     @Test

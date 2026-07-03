@@ -35,8 +35,7 @@ class UserServiceTest {
 
     @BeforeEach
     void setUp(){
-        input = new MockUser();
-        MockitoAnnotations.openMocks(this);
+        input = new MockUser();;
     }
 
     @Test
@@ -56,6 +55,8 @@ class UserServiceTest {
         assertEquals("User email 4", result.getEmail());
         assertEquals("Password 4", result.getPassword());
         assertEquals(4L, result.getUserId());
+
+        verify(repository).findById(4L);
     }
 
     @Test
@@ -74,6 +75,8 @@ class UserServiceTest {
         assertEquals("User email 1", result.getEmail());
         assertEquals("Password 1", result.getPassword());
         assertEquals(1L, result.getUserId());
+
+        verify(repository).save(any(User.class));
     }
 
     @Test
@@ -94,6 +97,9 @@ class UserServiceTest {
         assertEquals("User email 3", result.getEmail());
         assertEquals("Password 3", result.getPassword());
         assertEquals(3L, result.getUserId());
+
+        verify(repository).findById(3L);
+        verify(repository).save(any(User.class));
     }
 
     @Test

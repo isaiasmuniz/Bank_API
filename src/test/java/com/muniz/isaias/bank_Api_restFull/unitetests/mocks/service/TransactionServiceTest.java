@@ -46,11 +46,9 @@ class TransactionServiceTest {
     @BeforeEach
     void setUp(){
         input = new MockTransaction();
-        MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    @DisplayName("Vai dipara o teste de deposito")
     void deposit() {
         Transaction transaction = input.mockEntity(4);
         transaction.setType("deposit");
@@ -68,6 +66,9 @@ class TransactionServiceTest {
         assertEquals(4L, result.getTransactionId());
         assertEquals(BigDecimal.valueOf(4), result.getValue());
         assertEquals(BigDecimal.valueOf(8), result.getOriginAccount().getAccountBalance());
+
+        verify(accountRepository).findById(4L);
+        verify(repository).save(any(Transaction.class));
     }
     @Test
     void shouldThrowIllegalArgumentException(){
@@ -105,6 +106,9 @@ class TransactionServiceTest {
         assertEquals(5L, result.getOriginAccount().getAccountId());
         assertEquals(BigDecimal.valueOf(5), result.getValue());
         assertEquals(BigDecimal.valueOf(0), result.getOriginAccount().getAccountBalance());
+
+        verify(accountRepository).findById(5L);
+        verify(repository).save(any(Transaction.class));
     }
 
     @Test
@@ -146,6 +150,10 @@ class TransactionServiceTest {
         assertEquals(BigDecimal.valueOf(22), result.getTargetAccount().getAccountBalance());
         assertEquals(BigDecimal.valueOf(0), result.getOriginAccount().getAccountBalance());
 
+        verify(accountRepository).findById(10L);
+        verify(accountRepository).findById(12L);
+        verify(repository).save(any(Transaction.class));
+
     }
 
     @Test
@@ -177,6 +185,9 @@ class TransactionServiceTest {
         assertEquals("deposit", result.get(0).getType());
         assertEquals("withdrawal", result.get(1).getType());
         assertEquals("transfer", result.get(2).getType());
+
+        verify(accountRepository).findById(3L);
+        verify(repository).viewAllHistory(3L);
     }
 
     @Test
