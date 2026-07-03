@@ -1,6 +1,5 @@
 package com.muniz.isaias.bank_Api_restFull.service;
 
-import com.muniz.isaias.bank_Api_restFull.dto.AccountDTO;
 import com.muniz.isaias.bank_Api_restFull.dto.TransactionDTO;
 import com.muniz.isaias.bank_Api_restFull.exception.BadRequestException;
 import com.muniz.isaias.bank_Api_restFull.exception.NotFoundException;
@@ -16,6 +15,7 @@ import static com.muniz.isaias.bank_Api_restFull.mapper.ObjectMapper.parseObject
 import static com.muniz.isaias.bank_Api_restFull.mapper.ObjectMapper.parseListOfObjects;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -32,15 +32,16 @@ public class TransactionService {
 
     public TransactionDTO deposit(TransactionDTO transactionDTO, Long id){
         logger.info("Depositing");
-        if (transactionDTO.getType().equalsIgnoreCase("deposit") && transactionDTO.getValue().compareTo(BigDecimal.ZERO) > 0){
-            Account account = getAccount(id);
+        Account account = getAccount(id);
+        if (transactionDTO.getType().equalsIgnoreCase("deposit")
+                && transactionDTO.getValue().compareTo(BigDecimal.ZERO) > 0){
 
             Transaction entity = parseObject(transactionDTO, Transaction.class);
             entity.setDateHour(new Date());
             entity.setOriginAccount(account);
             account.setAccountBalance(account.getAccountBalance().add(entity.getValue()));
             return parseObject(repository.save(entity), TransactionDTO.class);
-        }else throw new BadRequestException("Transaction type invalid");
+        }else throw new BadRequestException("Transaction type or Value must be greater than zero");
 
     }
 
@@ -52,39 +53,41 @@ public class TransactionService {
             Transaction entity = parseObject(transactionDTO, Transaction.class);
             entity.setDateHour(new Date());
             entity.setOriginAccount(account);
-            if (account.getAccountBalance().compareTo(entity.getValue()) < 0) throw new BadRequestException("Insufficient account balance");
+            if (account.getAccountBalance().compareTo(entity.getValue()) < 0) throw new
+                    BadRequestException("Insufficient account balance");
             account.setAccountBalance(account.getAccountBalance().subtract(entity.getValue()));
             return parseObject(repository.save(entity), TransactionDTO.class);
-        }else throw new BadRequestException("Transaction type invalid");
+        }else throw new BadRequestException("Transaction type invalid or Value must be greater than zero");
     }
 
     public TransactionDTO bankTransfer(TransactionDTO transaction, Long id, Long targetId){
         logger.info("Transferring");
-        Account account = getAccount(id);
+        Account originAccount = getAccount(id);
+        Account targetAccount = getAccount(targetId);
         if (transaction.getType().equalsIgnoreCase("transfer") && transaction.getValue().compareTo(BigDecimal.ZERO) > 0){
-            Account targetAccount = getAccount(targetId);
 
 
             var entity = parseObject(transaction, Transaction.class);
             entity.setDateHour(new Date());
-            entity.setTargetAccount(targetAccount);
-            entity.setOriginAccount(account);
-            if(account.getAccountBalance().compareTo(transaction.getValue()) >= 0){
-                account.setAccountBalance(account.getAccountBalance().subtract(transaction.getValue()));
+            if(originAccount.getAccountBalance().compareTo(transaction.getValue()) >= 0){
+                originAccount.setAccountBalance(originAccount.getAccountBalance().subtract(transaction.getValue()));
             }else throw new BadRequestException("Insufficient account balance");
             targetAccount.setAccountBalance(targetAccount.getAccountBalance().add(transaction.getValue()));
+            entity.setTargetAccount(targetAccount);
+            entity.setOriginAccount(originAccount);
             return parseObject(repository.save(entity), TransactionDTO.class);
-        }else throw new BadRequestException("Transaction type invalid");
+        }else throw new BadRequestException("Transaction type invalid or Value must be greater than zero");
     }
 
     public List<TransactionDTO> viewHistory(Long accountId){
         logger.info("Viewing history");
         getAccount(accountId);
 
-        return parseListOfObjects(repository.findByOriginAccountAccountId(accountId), TransactionDTO.class);
+        return parseListOfObjects(repository.viewAllHistory(accountId), TransactionDTO.class);
     }
 
     private Account getAccount(Long accountId) {
         return accountRepository.findById(accountId).orElseThrow(() -> new NotFoundException());
     }
+
 }

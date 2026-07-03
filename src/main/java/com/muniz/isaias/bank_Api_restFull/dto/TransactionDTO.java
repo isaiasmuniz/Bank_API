@@ -6,7 +6,7 @@ import java.util.Date;
 import java.util.Objects;
 
 public class TransactionDTO implements Serializable {
-    private Long id;
+    private Long transactionId;
     private String type;
     private BigDecimal value;
     private Date dateHour;
@@ -17,12 +17,12 @@ public class TransactionDTO implements Serializable {
     public TransactionDTO() {
     }
 
-    public Long getId() {
-        return id;
+    public Long getTransactionId() {
+        return transactionId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setTransactionId(Long transactionId) {
+        this.transactionId = transactionId;
     }
 
     public String getType() {
@@ -76,12 +76,12 @@ public class TransactionDTO implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        TransactionDTO that = (TransactionDTO) o;
-        return Objects.equals(id, that.id) && Objects.equals(type, that.type) && Objects.equals(value, that.value) && Objects.equals(dateHour, that.dateHour) && Objects.equals(originAccount, that.originAccount) && Objects.equals(targetAccount, that.targetAccount) && Objects.equals(status, that.status);
+        TransactionDTO dto = (TransactionDTO) o;
+        return Objects.equals(transactionId, dto.transactionId) && Objects.equals(type, dto.type) && Objects.equals(value, dto.value) && Objects.equals(dateHour, dto.dateHour) && Objects.equals(originAccount, dto.originAccount) && Objects.equals(targetAccount, dto.targetAccount) && Objects.equals(status, dto.status);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, type, value, dateHour, originAccount, targetAccount, status);
+        return Objects.hash(transactionId, type, value, dateHour, originAccount, targetAccount, status);
     }
 }

@@ -76,8 +76,8 @@ public class UserDTO implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        UserDTO userDTO = (UserDTO) o;
-        return Objects.equals(UserId, userDTO.UserId) && Objects.equals(name, userDTO.name) && Objects.equals(email, userDTO.email) && Objects.equals(password, userDTO.password) && Objects.equals(creationDate, userDTO.creationDate) && Objects.equals(accountDTOList, userDTO.accountDTOList);
+        UserDTO dto = (UserDTO) o;
+        return Objects.equals(UserId, dto.UserId) && Objects.equals(name, dto.name) && Objects.equals(email, dto.email) && Objects.equals(password, dto.password) && Objects.equals(creationDate, dto.creationDate) && Objects.equals(accountDTOList, dto.accountDTOList);
     }
 
     @Override

@@ -13,3 +13,7 @@ spring:
       hibernate:
         show-sql: false
         open-in-view: false
+
+  logging:
+    level:
+      com.muniz.isaias.bank_Api_restFull: info

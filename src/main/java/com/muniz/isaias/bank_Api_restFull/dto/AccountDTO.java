@@ -1,16 +1,13 @@
 package com.muniz.isaias.bank_Api_restFull.dto;
 
-import com.muniz.isaias.bank_Api_restFull.models.User;
-
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Date;
 import java.util.Objects;
 
 public class AccountDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
-   private Long id;
+   private Long accountId;
    private String accountNumber;
    private BigDecimal accountBalance;
    private boolean status;
@@ -24,12 +21,12 @@ public class AccountDTO implements Serializable {
         this.status = status;
    }
 
-    public Long getId() {
-        return id;
+    public Long getAccountId() {
+        return accountId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setAccountId(Long accountId) {
+        this.accountId = accountId;
     }
 
     public String getAccountNumber() {
@@ -67,12 +64,12 @@ public class AccountDTO implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        AccountDTO that = (AccountDTO) o;
-        return status == that.status && Objects.equals(id, that.id) && Objects.equals(accountNumber, that.accountNumber) && Objects.equals(accountBalance, that.accountBalance) && Objects.equals(user, that.user);
+        AccountDTO dto = (AccountDTO) o;
+        return status == dto.status && Objects.equals(accountId, dto.accountId) && Objects.equals(accountNumber, dto.accountNumber) && Objects.equals(accountBalance, dto.accountBalance) && Objects.equals(user, dto.user);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, accountNumber, accountBalance, status, user);
+        return Objects.hash(accountId, accountNumber, accountBalance, status, user);
     }
 }

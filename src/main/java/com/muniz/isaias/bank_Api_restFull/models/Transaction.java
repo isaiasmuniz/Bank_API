@@ -13,7 +13,7 @@ public class Transaction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long transactionId;
 
     @Column
     private String type;
@@ -39,12 +39,12 @@ public class Transaction {
     public Transaction() {
     }
 
-    public Long getId() {
-        return id;
+    public Long getTransactionId() {
+        return transactionId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setTransactionId(Long transactionId) {
+        this.transactionId = transactionId;
     }
 
     public String getType() {
@@ -99,11 +99,11 @@ public class Transaction {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Transaction that = (Transaction) o;
-        return Objects.equals(id, that.id) && Objects.equals(type, that.type) && Objects.equals(value, that.value) && Objects.equals(dateHour, that.dateHour) && Objects.equals(originAccount, that.originAccount) && Objects.equals(targetAccount, that.targetAccount) && Objects.equals(status, that.status);
+        return Objects.equals(transactionId, that.transactionId) && Objects.equals(type, that.type) && Objects.equals(value, that.value) && Objects.equals(dateHour, that.dateHour) && Objects.equals(originAccount, that.originAccount) && Objects.equals(targetAccount, that.targetAccount) && Objects.equals(status, that.status);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, type, value, dateHour, originAccount, targetAccount, status);
+        return Objects.hash(transactionId, type, value, dateHour, originAccount, targetAccount, status);
     }
 }
