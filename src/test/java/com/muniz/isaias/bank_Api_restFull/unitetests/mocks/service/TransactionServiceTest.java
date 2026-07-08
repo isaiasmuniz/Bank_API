@@ -62,6 +62,19 @@ class TransactionServiceTest {
         var result = service.deposit(dto, dto.getTransactionId());
 
         assertNotNull(result);
+        assertNotNull(result.getLinks());
+
+        assertTrue(result.getLinks().stream().anyMatch(link -> link.getRel().value().equals("deposit")
+        && link.getHref().endsWith("bank-api/transaction/deposit/4") && link.getType().equals("PUT")));
+
+        assertTrue(result.getLinks().stream().anyMatch(link -> link.getRel().value().equals("withdrawal")
+        && link.getHref().endsWith("bank-api/transaction/withdrawal/4") && link.getType().equals("PUT")));
+
+        assertTrue(result.getLinks().stream().anyMatch(link -> link.getRel().value().equals("bankTransfer")
+        && link.getHref().endsWith("bank-api/transaction/transfer/4/6") && link.getType().equals("PUT")));
+
+        assertTrue(result.getLinks().stream().anyMatch(link -> link.getRel().value().equals("viewHistory")
+        && link.getHref().endsWith("bank-api/transaction/4") && link.getType().equals("GET")));
 
         assertEquals(4L, result.getTransactionId());
         assertEquals(BigDecimal.valueOf(4), result.getValue());
@@ -101,6 +114,19 @@ class TransactionServiceTest {
         var result = service.withdrawal(dto, dto.getOriginAccount().getAccountId());
 
         assertNotNull(result);
+        assertNotNull(result.getLinks());
+
+        assertTrue(result.getLinks().stream().anyMatch(link -> link.getRel().value().equals("deposit")
+                && link.getHref().endsWith("bank-api/transaction/deposit/5") && link.getType().equals("PUT")));
+
+        assertTrue(result.getLinks().stream().anyMatch(link -> link.getRel().value().equals("withdrawal")
+                && link.getHref().endsWith("bank-api/transaction/withdrawal/5") && link.getType().equals("PUT")));
+
+        assertTrue(result.getLinks().stream().anyMatch(link -> link.getRel().value().equals("bankTransfer")
+                && link.getHref().endsWith("bank-api/transaction/transfer/5/7") && link.getType().equals("PUT")));
+
+        assertTrue(result.getLinks().stream().anyMatch(link -> link.getRel().value().equals("viewHistory")
+                && link.getHref().endsWith("bank-api/transaction/5") && link.getType().equals("GET")));
 
         assertEquals(5L, result.getTransactionId());
         assertEquals(5L, result.getOriginAccount().getAccountId());
@@ -144,6 +170,19 @@ class TransactionServiceTest {
         var result = service.bankTransfer(dto, dto.getOriginAccount().getAccountId(), dto.getTargetAccount().getAccountId());
 
         assertNotNull(result);
+        assertNotNull(result.getLinks());
+
+        assertTrue(result.getLinks().stream().anyMatch(link -> link.getRel().value().equals("deposit")
+                && link.getHref().endsWith("bank-api/transaction/deposit/10") && link.getType().equals("PUT")));
+
+        assertTrue(result.getLinks().stream().anyMatch(link -> link.getRel().value().equals("withdrawal")
+                && link.getHref().endsWith("bank-api/transaction/withdrawal/10") && link.getType().equals("PUT")));
+
+        assertTrue(result.getLinks().stream().anyMatch(link -> link.getRel().value().equals("bankTransfer")
+                && link.getHref().endsWith("bank-api/transaction/transfer/10/12") && link.getType().equals("PUT")));
+
+        assertTrue(result.getLinks().stream().anyMatch(link -> link.getRel().value().equals("viewHistory")
+                && link.getHref().endsWith("bank-api/transaction/10") && link.getType().equals("GET")));
 
         assertEquals(10L, result.getOriginAccount().getAccountId());
         assertEquals(12L, result.getTargetAccount().getAccountId());

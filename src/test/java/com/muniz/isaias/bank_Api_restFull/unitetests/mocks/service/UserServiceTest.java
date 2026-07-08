@@ -50,6 +50,16 @@ class UserServiceTest {
 
         assertNotNull(result);
         assertNotNull(result.getUserId());
+        assertNotNull(result.getLinks());
+
+        assertTrue(result.getLinks().stream().anyMatch(link -> link.getRel().value().equals("findUserById")
+        && link.getHref().endsWith("/bank-api/user/4") && link.getType().equals("GET")));
+
+        assertTrue(result.getLinks().stream().anyMatch(link -> link.getRel().value().equals("create")
+        && link.getHref().endsWith("/bank-api/user") && link.getType().equals("POST")));
+
+        assertTrue(result.getLinks().stream().anyMatch(link -> link.getRel().value().equals("update")
+        && link.getHref().endsWith("/bank-api/user") && link.getType().equals("PUT")));
 
         assertEquals("User name 4", result.getName());
         assertEquals("User email 4", result.getEmail());
@@ -70,6 +80,16 @@ class UserServiceTest {
         var result = service.createUser(dto);
         assertNotNull(result);
         assertNotNull(result.getUserId());
+        assertNotNull(result.getLinks());
+
+        assertTrue(result.getLinks().stream().anyMatch(link -> link.getRel().value().equals("findUserById")
+                && link.getHref().endsWith("/bank-api/user/1") && link.getType().equals("GET")));
+
+        assertTrue(result.getLinks().stream().anyMatch(link -> link.getRel().value().equals("create")
+                && link.getHref().endsWith("/bank-api/user") && link.getType().equals("POST")));
+
+        assertTrue(result.getLinks().stream().anyMatch(link -> link.getRel().value().equals("update")
+                && link.getHref().endsWith("/bank-api/user") && link.getType().equals("PUT")));
 
         assertEquals("User name 1", result.getName());
         assertEquals("User email 1", result.getEmail());
@@ -92,6 +112,16 @@ class UserServiceTest {
 
         assertNotNull(result);
         assertNotNull(result.getUserId());
+        assertNotNull(result.getLinks());
+
+        assertTrue(result.getLinks().stream().anyMatch(link -> link.getRel().value().equals("findUserById")
+                && link.getHref().endsWith("/bank-api/user/3") && link.getType().equals("GET")));
+
+        assertTrue(result.getLinks().stream().anyMatch(link -> link.getRel().value().equals("create")
+                && link.getHref().endsWith("/bank-api/user") && link.getType().equals("POST")));
+
+        assertTrue(result.getLinks().stream().anyMatch(link -> link.getRel().value().equals("update")
+                && link.getHref().endsWith("/bank-api/user") && link.getType().equals("PUT")));
 
         assertEquals("User name 3", result.getName());
         assertEquals("User email 3", result.getEmail());

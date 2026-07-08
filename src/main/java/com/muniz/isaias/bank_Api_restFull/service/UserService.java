@@ -1,5 +1,6 @@
 package com.muniz.isaias.bank_Api_restFull.service;
 
+import com.muniz.isaias.bank_Api_restFull.controller.UserController;
 import com.muniz.isaias.bank_Api_restFull.dto.UserDTO;
 import com.muniz.isaias.bank_Api_restFull.exception.NotFoundException;
 import com.muniz.isaias.bank_Api_restFull.models.User;
@@ -9,8 +10,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+
 import static com.muniz.isaias.bank_Api_restFull.mapper.ObjectMapper.parseListOfObjects;
 import static com.muniz.isaias.bank_Api_restFull.mapper.ObjectMapper.parseObject;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import java.util.Date;
 
@@ -27,8 +31,10 @@ public class UserService {
         logger.info("Creating User");
         var entity = parseObject(user, User.class);
         entity.setCreationDate(new Date());
+        var dto = parseObject(repository.save(entity), UserDTO.class);
+        addHateoasLinks(dto);
 
-        return parseObject(repository.save(entity), UserDTO.class);
+        return dto;
     }
 
     public UserDTO updateUser(UserDTO userDTO){
@@ -39,14 +45,23 @@ public class UserService {
         entity.setEmail(userDTO.getEmail());
         entity.setName(userDTO.getName());
         entity.setPassword(userDTO.getPassword());
+        var dto = parseObject(repository.save(entity), UserDTO.class);
+        addHateoasLinks(dto);
 
-        return parseObject(repository.save(entity), UserDTO.class);
+        return dto;
     }
 
     public UserDTO findUserById(Long id){
         logger.info("Finding a User by id");
         var entity = repository.findById(id).orElseThrow(() -> new NotFoundException());
+        var dto = parseObject(entity, UserDTO.class);
+        addHateoasLinks(dto);
+        return dto;
+    }
 
-        return parseObject(entity, UserDTO.class);
+    private void addHateoasLinks(UserDTO dto){
+        dto.add(linkTo(methodOn(UserController.class).findUserById(dto.getUserId())).withRel("findUserById").withType("GET"));
+        dto.add(linkTo(methodOn(UserController.class).create(dto)).withRel("create").withType("POST"));
+        dto.add(linkTo(methodOn(UserController.class).update(dto)).withRel("update").withType("PUT"));
     }
 }

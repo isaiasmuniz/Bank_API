@@ -1,11 +1,13 @@
 package com.muniz.isaias.bank_Api_restFull.dto;
 
+import org.springframework.hateoas.RepresentationModel;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Objects;
 
-public class TransactionDTO implements Serializable {
+public class TransactionDTO extends RepresentationModel<TransactionDTO> implements Serializable {
     private Long transactionId;
     private String type;
     private BigDecimal value;

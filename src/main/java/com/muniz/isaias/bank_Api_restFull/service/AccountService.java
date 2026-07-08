@@ -1,5 +1,6 @@
 package com.muniz.isaias.bank_Api_restFull.service;
 
+import com.muniz.isaias.bank_Api_restFull.controller.AccountController;
 import com.muniz.isaias.bank_Api_restFull.dto.AccountDTO;
 import com.muniz.isaias.bank_Api_restFull.exception.BadRequestException;
 import com.muniz.isaias.bank_Api_restFull.exception.NotFoundException;
@@ -13,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import static com.muniz.isaias.bank_Api_restFull.mapper.ObjectMapper.parseObject;
 import static com.muniz.isaias.bank_Api_restFull.mapper.ObjectMapper.parseListOfObjects;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import java.math.BigDecimal;
 
@@ -38,8 +41,10 @@ public class AccountService {
         account.setAccountBalance(BigDecimal.ZERO);
         account.setStatus(true);
         account.setUser(user);
+        var dto = parseObject(repository.save(account), AccountDTO.class);
+        addHateoasLinks(dto);
 
-        return parseObject(repository.save(account), AccountDTO.class);
+        return dto;
     }
 
     public AccountDTO blockAccount(Long id){
@@ -48,7 +53,10 @@ public class AccountService {
 
         if (!entity.getStatus()) throw new BadRequestException("Account already blocked");
         entity.setStatus(false);
-        return parseObject(repository.save(entity), AccountDTO.class);
+        var dto = parseObject(repository.save(entity), AccountDTO.class);
+        addHateoasLinks(dto);
+
+        return dto;
     }
 
     public AccountDTO unBlockAccount(Long id){
@@ -57,14 +65,25 @@ public class AccountService {
 
         if (entity.getStatus()) throw new BadRequestException("Active account");
         entity.setStatus(true);
+        var dto = parseObject(repository.save(entity), AccountDTO.class);
+        addHateoasLinks(dto);
 
-        return parseObject(repository.save(entity), AccountDTO.class);
+        return dto;
     }
 
     public AccountDTO findAccountById(Long id){
         logger.info("Finding by Id");
         var entity = repository.findById(id).orElseThrow(() -> new NotFoundException());
+        var dto = parseObject(entity, AccountDTO.class);
+        addHateoasLinks(dto);
 
-        return parseObject(entity, AccountDTO.class);
+        return dto;
+    }
+
+    private void addHateoasLinks(AccountDTO dto){
+        dto.add(linkTo(methodOn(AccountController.class).findAccountById(dto.getAccountId())).withRel("findAccountById").withType("GET"));
+        dto.add(linkTo(methodOn(AccountController.class).createAccount(dto.getAccountId())).withRel("createAccount").withType("POST"));
+        dto.add(linkTo(methodOn(AccountController.class).blockAccount(dto.getAccountId())).withRel("blockAccount").withType("PUT"));
+        dto.add(linkTo(methodOn(AccountController.class).unBlockAccount(dto.getAccountId())).withRel("unBlockAccount").withType("PUT"));
     }
 }

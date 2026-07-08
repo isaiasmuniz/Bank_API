@@ -1,12 +1,14 @@
 package com.muniz.isaias.bank_Api_restFull.dto;
 
+import org.springframework.hateoas.RepresentationModel;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-public class UserDTO implements Serializable {
+public class UserDTO extends RepresentationModel<UserDTO> implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Long UserId;

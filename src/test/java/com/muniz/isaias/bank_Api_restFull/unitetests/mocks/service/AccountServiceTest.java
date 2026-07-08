@@ -56,14 +56,23 @@ class AccountServiceTest {
 
         assertNotNull(result);
         assertNotNull(result.getAccountId());
+        assertNotNull(result.getLinks());
+
+        assertTrue(result.getLinks().stream().anyMatch(link -> link.getRel().value().equals("findAccountById")
+        && link.getHref().endsWith("bank-api/account/2") && link.getType().equals("GET")));
+
+        assertTrue(result.getLinks().stream().anyMatch(link -> link.getRel().value().equals("createAccount")
+        && link.getHref().endsWith("bank-api/account/2") && link.getType().equals("POST")));
+
+        assertTrue(result.getLinks().stream().anyMatch(link -> link.getRel().value().equals("blockAccount")
+        && link.getHref().endsWith("bank-api/account/block/2") && link.getType().equals("PUT")));
+
+        assertTrue(result.getLinks().stream().anyMatch(link -> link.getRel().value().equals("unBlockAccount")
+        && link.getHref().endsWith("bank-api/account/unblock/2") && link.getType().equals("PUT")));
 
         assertEquals("Account number 2", result.getAccountNumber());
         assertEquals(BigDecimal.valueOf(2), result.getAccountBalance());
         assertTrue(result.isStatus());
-
-        assertEquals("User name 2", result.getUser().getName());
-        assertEquals("User email 2", result.getUser().getEmail());
-        assertEquals("Password 2", result.getUser().getPassword());
 
         verify(repository).findById(2L);
     }
@@ -85,10 +94,19 @@ class AccountServiceTest {
         assertEquals("Account number 1", result.getAccountNumber());
         assertEquals(BigDecimal.valueOf(1), result.getAccountBalance());
         assertFalse(result.isStatus());
+        assertNotNull(result.getLinks());
 
-        assertEquals("User name 1", result.getUser().getName());
-        assertEquals("User email 1", result.getUser().getEmail());
-        assertEquals("Password 1", result.getUser().getPassword());
+        assertTrue(result.getLinks().stream().anyMatch(link -> link.getRel().value().equals("findAccountById")
+                && link.getHref().endsWith("bank-api/account/1") && link.getType().equals("GET")));
+
+        assertTrue(result.getLinks().stream().anyMatch(link -> link.getRel().value().equals("createAccount")
+                && link.getHref().endsWith("bank-api/account/1") && link.getType().equals("POST")));
+
+        assertTrue(result.getLinks().stream().anyMatch(link -> link.getRel().value().equals("blockAccount")
+                && link.getHref().endsWith("bank-api/account/block/1") && link.getType().equals("PUT")));
+
+        assertTrue(result.getLinks().stream().anyMatch(link -> link.getRel().value().equals("unBlockAccount")
+                && link.getHref().endsWith("bank-api/account/unblock/1") && link.getType().equals("PUT")));
 
         verify(repository).save(any(Account.class));
     }
@@ -106,6 +124,19 @@ class AccountServiceTest {
 
         assertNotNull(result);
         assertNotNull(result.getAccountId());
+        assertNotNull(result.getLinks());
+
+        assertTrue(result.getLinks().stream().anyMatch(link -> link.getRel().value().equals("findAccountById")
+                && link.getHref().endsWith("bank-api/account/6") && link.getType().equals("GET")));
+
+        assertTrue(result.getLinks().stream().anyMatch(link -> link.getRel().value().equals("createAccount")
+                && link.getHref().endsWith("bank-api/account/6") && link.getType().equals("POST")));
+
+        assertTrue(result.getLinks().stream().anyMatch(link -> link.getRel().value().equals("blockAccount")
+                && link.getHref().endsWith("bank-api/account/block/6") && link.getType().equals("PUT")));
+
+        assertTrue(result.getLinks().stream().anyMatch(link -> link.getRel().value().equals("unBlockAccount")
+                && link.getHref().endsWith("bank-api/account/unblock/6") && link.getType().equals("PUT")));
 
         assertFalse(result.isStatus());
 
@@ -126,6 +157,19 @@ class AccountServiceTest {
 
         assertNotNull(result);
         assertNotNull(result.getAccountId());
+        assertNotNull(result.getLinks());
+
+        assertTrue(result.getLinks().stream().anyMatch(link -> link.getRel().value().equals("findAccountById")
+                && link.getHref().endsWith("bank-api/account/3") && link.getType().equals("GET")));
+
+        assertTrue(result.getLinks().stream().anyMatch(link -> link.getRel().value().equals("createAccount")
+                && link.getHref().endsWith("bank-api/account/3") && link.getType().equals("POST")));
+
+        assertTrue(result.getLinks().stream().anyMatch(link -> link.getRel().value().equals("blockAccount")
+                && link.getHref().endsWith("bank-api/account/block/3") && link.getType().equals("PUT")));
+
+        assertTrue(result.getLinks().stream().anyMatch(link -> link.getRel().value().equals("unBlockAccount")
+                && link.getHref().endsWith("bank-api/account/unblock/3") && link.getType().equals("PUT")));
 
         assertTrue(result.isStatus());
 
