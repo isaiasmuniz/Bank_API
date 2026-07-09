@@ -6,6 +6,7 @@ import com.muniz.isaias.bank_Api_restFull.models.Account;
 import com.muniz.isaias.bank_Api_restFull.service.AccountService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,22 +17,29 @@ public class AccountController implements AccountControllerDocs {
     @Autowired
     AccountService service;
 
-    @PostMapping("/{id}")
+    @PostMapping(value = "/{id}",
+            produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE},
+            consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public AccountDTO createAccount(@PathVariable("id") Long id){
         return service.createAccount(id);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping(value = "/{id}",
+            produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public AccountDTO findAccountById(@PathVariable("id") Long id){
         return service.findAccountById(id);
     }
 
-    @PutMapping("/block/{id}")
+    @PutMapping(value = "/block/{id}",
+            produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE},
+            consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public AccountDTO blockAccount(@PathVariable("id") Long id){
         return service.blockAccount(id);
     }
 
-    @PutMapping("/unblock/{id}")
+    @PutMapping(value = "/unblock/{id}",
+            produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE},
+            consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public AccountDTO unBlockAccount(@PathVariable("id") Long id){
         return service.unBlockAccount(id);
     }
