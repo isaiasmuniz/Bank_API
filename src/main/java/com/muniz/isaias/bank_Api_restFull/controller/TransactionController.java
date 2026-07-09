@@ -1,10 +1,12 @@
 package com.muniz.isaias.bank_Api_restFull.controller;
 
+import com.muniz.isaias.bank_Api_restFull.controller.docs.TransactionControllerDocs;
 import com.muniz.isaias.bank_Api_restFull.dto.TransactionDTO;
 import com.muniz.isaias.bank_Api_restFull.exception.BadRequestException;
 import com.muniz.isaias.bank_Api_restFull.models.Account;
 import com.muniz.isaias.bank_Api_restFull.models.Transaction;
 import com.muniz.isaias.bank_Api_restFull.service.TransactionService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +16,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("bank-api/transaction")
-public class TransactionController {
+@Tag(name = "transaction", description = "Endpoints for transaction")
+public class TransactionController implements TransactionControllerDocs {
 
     @Autowired
     TransactionService service;

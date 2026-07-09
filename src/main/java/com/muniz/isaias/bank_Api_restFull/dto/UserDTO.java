@@ -1,6 +1,7 @@
 package com.muniz.isaias.bank_Api_restFull.dto;
 
 import org.springframework.hateoas.RepresentationModel;
+import org.springframework.hateoas.server.core.Relation;
 
 import java.io.Serializable;
 import java.util.ArrayList;

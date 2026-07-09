@@ -1,16 +1,19 @@
 package com.muniz.isaias.bank_Api_restFull.controller;
 
+import com.muniz.isaias.bank_Api_restFull.controller.docs.UserControllerDocs;
 import com.muniz.isaias.bank_Api_restFull.dto.UserDTO;
 import com.muniz.isaias.bank_Api_restFull.models.Account;
 import com.muniz.isaias.bank_Api_restFull.models.User;
 import com.muniz.isaias.bank_Api_restFull.service.AccountService;
 import com.muniz.isaias.bank_Api_restFull.service.UserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("bank-api/user")
-public class UserController {
+@Tag(name = "users", description = "Endpoints for users")
+public class UserController implements UserControllerDocs {
 
     @Autowired
     private UserService userService;
