@@ -11,19 +11,25 @@ import com.muniz.isaias.bank_Api_restFull.repository.TransactionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.PagedModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.stereotype.Service;
 import static com.muniz.isaias.bank_Api_restFull.mapper.ObjectMapper.parseObject;
-import static com.muniz.isaias.bank_Api_restFull.mapper.ObjectMapper.parseListOfObjects;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 @Service
 public class TransactionService {
+
+    @Autowired
+    PagedResourcesAssembler<TransactionDTO> assembler;
 
     @Autowired
     TransactionRepository repository;
@@ -90,30 +96,36 @@ public class TransactionService {
         }else throw new BadRequestException("Transaction type invalid or Value must be greater than zero");
     }
 
-    public List<TransactionDTO> viewHistory(Long accountId){
+    public PagedModel<EntityModel<TransactionDTO>> viewHistory(Long id, Pageable pageable) {
         logger.info("Viewing history");
-        var account = getAccount(accountId);
-        List<TransactionDTO> result = repository.viewAllHistory(accountId).stream().map(transaction -> {
-            transaction.setTargetAccount(account);
+        var account = getAccount(id);
+        var result = repository.viewAllHistory(id, pageable).map(transaction -> {
+//            transaction.setOriginAccount(account);
             var dto = parseObject(transaction, TransactionDTO.class);
             addHateoasLinks(dto);
             return dto;
-        }).toList();
+        });
 
+        Link findAllLinks = WebMvcLinkBuilder.linkTo(methodOn(TransactionController.class).viewHistory(id,
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                String.valueOf(pageable.getSort())
+        )).withRel("viewHistory").withType("GET");
 
-//        return parseListOfObjects(repository.viewAllHistory(accountId), TransactionDTO.class);
-        return result;
+        return assembler.toModel(result, findAllLinks);
     }
 
-    private Account getAccount(Long accountId) {
-        return accountRepository.findById(accountId).orElseThrow(() -> new NotFoundException());
+    private Account getAccount(Long id) {
+        return accountRepository.findById(id).orElseThrow(() -> new NotFoundException());
     }
 
     private void addHateoasLinks(TransactionDTO dto){
         dto.add(linkTo(methodOn(TransactionController.class).deposit(dto, dto.getOriginAccount().getAccountId())).withRel("deposit").withType("PUT"));
         dto.add(linkTo(methodOn(TransactionController.class).withdrawal(dto, dto.getOriginAccount().getAccountId())).withRel("withdrawal").withType("PUT"));
-        dto.add(linkTo(methodOn(TransactionController.class).bankTransfer(dto, dto.getOriginAccount().getAccountId(), dto.getTargetAccount().getAccountId())).withRel("bankTransfer").withType("PUT"));
-        dto.add(linkTo(methodOn(TransactionController.class).viewHistory(dto.getOriginAccount().getAccountId())).withRel("viewHistory").withType("GET"));
+        dto.add(linkTo(methodOn(TransactionController.class).viewHistory(dto.getOriginAccount().getAccountId(), 0, 2, "asc")).withRel("viewHistory").withType("GET"));
+        if (dto.getTargetAccount() != null){
+            dto.add(linkTo(methodOn(TransactionController.class).bankTransfer(dto, dto.getOriginAccount().getAccountId(), dto.getTargetAccount().getAccountId())).withRel("bankTransfer").withType("PUT"));
+        }
     }
 
 }

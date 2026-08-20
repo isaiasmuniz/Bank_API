@@ -1,42 +1,27 @@
-package com.muniz.isaias.bank_Api_restFull.models;
+package com.muniz.isaias.bank_Api_restFull.integrationtests.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.persistence.*;
+import org.springframework.hateoas.RepresentationModel;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Objects;
 
-@Entity
-@Table
-public class Transaction {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class TransactionDTO implements Serializable {
     private Long transactionId;
-
-    @Column
     private String type;
-
-    @Column
     private BigDecimal value;
-
-    @Column
-    @JsonFormat(pattern = "dd/MM/yyy HH:mm")
     private Date dateHour;
-
-    @ManyToOne
-    @JoinColumn(name = "account_id")
-    private Account originAccount;
-
-    @ManyToOne
-    @JoinColumn(name = "taget_account_id")
-    private Account targetAccount;
-
-    @Column
+    private AccountDTO originAccount;
+    private AccountDTO targetAccount;
     private String status;
 
-    public Transaction() {
+    public TransactionDTO() {
+    }
+
+    public TransactionDTO(String type, BigDecimal value) {
+        this.type = type;
+        this.value = value;
     }
 
     public Long getTransactionId() {
@@ -71,19 +56,19 @@ public class Transaction {
         this.dateHour = dateHour;
     }
 
-    public Account getOriginAccount() {
+    public AccountDTO getOriginAccount() {
         return originAccount;
     }
 
-    public void setOriginAccount(Account originAccount) {
+    public void setOriginAccount(AccountDTO originAccount) {
         this.originAccount = originAccount;
     }
 
-    public Account getTargetAccount() {
+    public AccountDTO getTargetAccount() {
         return targetAccount;
     }
 
-    public void setTargetAccount(Account targetAccount) {
+    public void setTargetAccount(AccountDTO targetAccount) {
         this.targetAccount = targetAccount;
     }
 
@@ -98,8 +83,8 @@ public class Transaction {
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        Transaction that = (Transaction) o;
-        return Objects.equals(transactionId, that.transactionId) && Objects.equals(type, that.type) && Objects.equals(value, that.value) && Objects.equals(dateHour, that.dateHour) && Objects.equals(originAccount, that.originAccount) && Objects.equals(targetAccount, that.targetAccount) && Objects.equals(status, that.status);
+        TransactionDTO dto = (TransactionDTO) o;
+        return Objects.equals(transactionId, dto.transactionId) && Objects.equals(type, dto.type) && Objects.equals(value, dto.value) && Objects.equals(dateHour, dto.dateHour) && Objects.equals(originAccount, dto.originAccount) && Objects.equals(targetAccount, dto.targetAccount) && Objects.equals(status, dto.status);
     }
 
     @Override

@@ -17,3 +17,5 @@ spring:
   logging:
     level:
       com.muniz.isaias.bank_Api_restFull: info
+serve:
+  port: 8080

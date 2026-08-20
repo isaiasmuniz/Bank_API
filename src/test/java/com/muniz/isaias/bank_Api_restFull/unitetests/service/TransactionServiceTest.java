@@ -1,27 +1,32 @@
-package com.muniz.isaias.bank_Api_restFull.unitetests.mocks.service;
+package com.muniz.isaias.bank_Api_restFull.unitetests.service;
 
 import com.muniz.isaias.bank_Api_restFull.dto.TransactionDTO;
 import com.muniz.isaias.bank_Api_restFull.exception.BadRequestException;
 import com.muniz.isaias.bank_Api_restFull.exception.NotFoundException;
-import com.muniz.isaias.bank_Api_restFull.models.Account;
 import com.muniz.isaias.bank_Api_restFull.models.Transaction;
 import com.muniz.isaias.bank_Api_restFull.repository.AccountRepository;
 import com.muniz.isaias.bank_Api_restFull.repository.TransactionRepository;
 import com.muniz.isaias.bank_Api_restFull.service.TransactionService;
-import com.muniz.isaias.bank_Api_restFull.unitetests.mocks.MockAccount;
 import com.muniz.isaias.bank_Api_restFull.unitetests.mocks.MockTransaction;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.PagedModel;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.EmptyStackException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.muniz.isaias.bank_Api_restFull.mapper.ObjectMapper.parseListOfObjects;
 import static org.junit.jupiter.api.Assertions.*;
@@ -42,6 +47,9 @@ class TransactionServiceTest {
 
     @Mock
     private AccountRepository accountRepository;
+
+    @Mock
+    PagedResourcesAssembler<TransactionDTO> assembler;
 
     @BeforeEach
     void setUp(){
@@ -74,7 +82,7 @@ class TransactionServiceTest {
         && link.getHref().endsWith("bank-api/transaction/transfer/4/6") && link.getType().equals("PUT")));
 
         assertTrue(result.getLinks().stream().anyMatch(link -> link.getRel().value().equals("viewHistory")
-        && link.getHref().endsWith("bank-api/transaction/4") && link.getType().equals("GET")));
+        && link.getHref().endsWith("bank-api/transaction/4?page=0&size=2&direction=asc") && link.getType().equals("GET")));
 
         assertEquals(4L, result.getTransactionId());
         assertEquals(BigDecimal.valueOf(4), result.getValue());
@@ -126,7 +134,7 @@ class TransactionServiceTest {
                 && link.getHref().endsWith("bank-api/transaction/transfer/5/7") && link.getType().equals("PUT")));
 
         assertTrue(result.getLinks().stream().anyMatch(link -> link.getRel().value().equals("viewHistory")
-                && link.getHref().endsWith("bank-api/transaction/5") && link.getType().equals("GET")));
+                && link.getHref().endsWith("bank-api/transaction/5?page=0&size=2&direction=asc") && link.getType().equals("GET")));
 
         assertEquals(5L, result.getTransactionId());
         assertEquals(5L, result.getOriginAccount().getAccountId());
@@ -182,7 +190,7 @@ class TransactionServiceTest {
                 && link.getHref().endsWith("bank-api/transaction/transfer/10/12") && link.getType().equals("PUT")));
 
         assertTrue(result.getLinks().stream().anyMatch(link -> link.getRel().value().equals("viewHistory")
-                && link.getHref().endsWith("bank-api/transaction/10") && link.getType().equals("GET")));
+                && link.getHref().endsWith("bank-api/transaction/10?page=0&size=2&direction=asc") && link.getType().equals("GET")));
 
         assertEquals(10L, result.getOriginAccount().getAccountId());
         assertEquals(12L, result.getTargetAccount().getAccountId());
@@ -215,26 +223,44 @@ class TransactionServiceTest {
         transfer.setOriginAccount(transaction.getOriginAccount());
         history.add(transfer);
 
+        Page<Transaction> mockPage = new PageImpl<>(history);
+
         when(accountRepository.findById(3L)).thenReturn(Optional.of(transaction.getOriginAccount()));
-        when(repository.viewAllHistory(3L)).thenReturn(history);
+        when(repository.viewAllHistory(any(Long.class), any(Pageable.class))).thenReturn(mockPage);
 
-        List<TransactionDTO> result = service.viewHistory(3L);
+        var parseToDto = parseListOfObjects(history, TransactionDTO.class);
+        List<EntityModel<TransactionDTO>> entityModels = parseToDto.stream().map(EntityModel::of).collect(Collectors.toList());
 
-        assertEquals(3, result.size());
-        assertEquals("deposit", result.get(0).getType());
-        assertEquals("withdrawal", result.get(1).getType());
-        assertEquals("transfer", result.get(2).getType());
+        PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(mockPage.getSize(),
+                mockPage.getNumber(),
+                mockPage.getTotalElements(),
+                mockPage.getTotalPages());
+
+        PagedModel<EntityModel<TransactionDTO>> mockPageModel = PagedModel.of(entityModels, pageMetadata);
+        when(assembler.toModel(any(Page.class), any(Link.class))).thenReturn(mockPageModel);
+
+        PagedModel<EntityModel<TransactionDTO>> result = service.viewHistory(3L, PageRequest.of(0, 2));
+        List<TransactionDTO> trueHistory = result.getContent().stream().map(EntityModel::getContent).collect(Collectors.toList());
+
+        assertNotNull(trueHistory);
+        assertEquals(3, trueHistory.size());
+
+        assertEquals("deposit", trueHistory.get(0).getType());
+        assertEquals("withdrawal", trueHistory.get(1).getType());
+        assertEquals("transfer", trueHistory.get(2).getType());
 
         verify(accountRepository).findById(3L);
-        verify(repository).viewAllHistory(3L);
+        verify(repository).viewAllHistory(eq(3L), any(Pageable.class));
+        verify(assembler).toModel(any(Page.class), any(Link.class));
     }
 
     @Test
     void shouldThrowNotFoundException(){
+        TransactionDTO transaction = input.mockDto(33);
 
         when(accountRepository.findById(33L)).thenReturn(Optional.empty());
 
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> service.viewHistory(33L));
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> service.deposit(transaction, 33L));
 
         assertEquals("Not found", exception.getMessage());
 

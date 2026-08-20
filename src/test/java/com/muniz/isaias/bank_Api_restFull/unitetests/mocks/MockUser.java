@@ -1,13 +1,9 @@
 package com.muniz.isaias.bank_Api_restFull.unitetests.mocks;
 
 import com.muniz.isaias.bank_Api_restFull.dto.UserDTO;
-import com.muniz.isaias.bank_Api_restFull.models.Account;
 import com.muniz.isaias.bank_Api_restFull.models.User;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 public class MockUser {
 

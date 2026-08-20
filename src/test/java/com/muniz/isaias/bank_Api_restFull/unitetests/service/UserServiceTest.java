@@ -1,4 +1,4 @@
-package com.muniz.isaias.bank_Api_restFull.unitetests.mocks.service;
+package com.muniz.isaias.bank_Api_restFull.unitetests.service;
 
 import com.muniz.isaias.bank_Api_restFull.dto.UserDTO;
 import com.muniz.isaias.bank_Api_restFull.exception.NotFoundException;
@@ -12,10 +12,8 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Date;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;

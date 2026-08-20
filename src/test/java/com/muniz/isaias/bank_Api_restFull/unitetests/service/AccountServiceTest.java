@@ -1,4 +1,4 @@
-package com.muniz.isaias.bank_Api_restFull.unitetests.mocks.service;
+package com.muniz.isaias.bank_Api_restFull.unitetests.service;
 
 import com.muniz.isaias.bank_Api_restFull.dto.AccountDTO;
 import com.muniz.isaias.bank_Api_restFull.exception.BadRequestException;
@@ -14,7 +14,6 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
