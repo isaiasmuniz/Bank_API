@@ -1,5 +1,6 @@
 package com.muniz.isaias.bank_Api_restFull.integrationtests.dto;
 
+import jakarta.xml.bind.annotation.XmlRootElement;
 import org.springframework.hateoas.RepresentationModel;
 
 import java.io.Serializable;
@@ -7,6 +8,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Objects;
 
+@XmlRootElement
 public class TransactionDTO implements Serializable {
     private Long transactionId;
     private String type;

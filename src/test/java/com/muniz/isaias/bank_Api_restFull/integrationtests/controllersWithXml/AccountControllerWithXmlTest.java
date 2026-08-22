@@ -1,4 +1,4 @@
-package com.muniz.isaias.bank_Api_restFull.integrationtests.controllersWithJson;
+package com.muniz.isaias.bank_Api_restFull.integrationtests.controllersWithXml;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class AccountControllerJsonTest extends AbstractIntegration {
+class AccountControllerWithXmlTest extends AbstractIntegration {
 
     private static ObjectMapper objectMapper;
     private static AccountDTO accountDTO;
@@ -33,7 +33,7 @@ class AccountControllerJsonTest extends AbstractIntegration {
         objectMapper = new ObjectMapper();
         objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         accountDTO = new AccountDTO();
-        userDTO = new UserDTO();
+        userDTO =  new UserDTO();
     }
 
     @Test
@@ -47,28 +47,30 @@ class AccountControllerJsonTest extends AbstractIntegration {
                 .addFilter(new RequestLoggingFilter(LogDetail.ALL))
                 .build();
 
-        var createUser = given(specification).contentType(MediaType.APPLICATION_JSON_VALUE)
+        var createUser = given(specification).contentType(MediaType.APPLICATION_XML_VALUE)
                 .body(userDTO)
                 .when()
                 .post()
                 .then()
                 .log().all()
                 .statusCode(200)
-                .extract().body().asString();
+                .extract()
+                .body().asString();
 
-        UserDTO persistedUser = objectMapper.readValue(createUser, UserDTO.class);
-        userDTO = persistedUser;
+        UserDTO createdUser = objectMapper.readValue(createUser, UserDTO.class);
+        userDTO = createdUser;
 
         specification.basePath("bank-api/account");
 
-        var content = given(specification).contentType(MediaType.APPLICATION_JSON_VALUE)
-                .pathParams("id", persistedUser.getUserId())
+        var content = given(specification).contentType(MediaType.APPLICATION_XML_VALUE)
+                .pathParams("id", createdUser.getUserId())
                 .when()
                 .post("{id}")
                 .then()
                 .log().all()
                 .statusCode(200)
-                .extract().body().asString();
+                .extract()
+                .body().asString();
 
         AccountDTO createdAccount = objectMapper.readValue(content, AccountDTO.class);
         accountDTO = createdAccount;
@@ -77,48 +79,52 @@ class AccountControllerJsonTest extends AbstractIntegration {
 
         assertTrue(createdAccount.isStatus());
         assertEquals(BigDecimal.ZERO, createdAccount.getAccountBalance());
-        assertEquals("isaias", createdAccount.getUser().getName());
-        assertEquals("isaiasmuniz8@gmail.com", createdAccount.getUser().getEmail());
-        assertEquals("adm123", createdAccount.getUser().getPassword());
+        assertEquals("Rebeca", createdAccount.getUser().getName());
+        assertEquals("Rebeca@email.com", createdAccount.getUser().getEmail());
+        assertEquals("dockerCompose", createdAccount.getUser().getPassword());
     }
 
     @Test
     @Order(2)
     void findAccountById() throws JsonProcessingException {
 
-        var content = given(specification).contentType(MediaType.APPLICATION_JSON_VALUE)
+        var content = given(specification).contentType(MediaType.APPLICATION_XML_VALUE)
                 .pathParams("id", accountDTO.getAccountId())
                 .when()
                 .get("{id}")
                 .then()
                 .log().all()
                 .statusCode(200)
-                .extract().body().asString();
+                .extract()
+                .body().asString();
 
         AccountDTO createdAccount = objectMapper.readValue(content, AccountDTO.class);
         accountDTO = createdAccount;
 
         assertNotNull(createdAccount.getAccountId());
 
+        assertTrue(createdAccount.isStatus());
         assertEquals(0, createdAccount.getAccountBalance().compareTo(BigDecimal.ZERO));
-        assertEquals(true, createdAccount.isStatus());
-        assertEquals("isaias", createdAccount.getUser().getName());
-        assertEquals("isaiasmuniz8@gmail.com", createdAccount.getUser().getEmail());
-        assertEquals("adm123", createdAccount.getUser().getPassword());
+        assertEquals("Rebeca", createdAccount.getUser().getName());
+        assertEquals("Rebeca@email.com", createdAccount.getUser().getEmail());
+        assertEquals("dockerCompose", createdAccount.getUser().getPassword());
     }
 
     @Test
     @Order(3)
     void blockAccount() throws JsonProcessingException {
+
         specification.basePath("bank-api/account/block");
-        var content = given(specification).contentType(MediaType.APPLICATION_JSON_VALUE)
-                .pathParams("id", accountDTO.getAccountId())
+
+        var content = given(specification).contentType(MediaType.APPLICATION_XML_VALUE)
+                .pathParam("id", accountDTO.getAccountId())
                 .when()
                 .put("{id}")
                 .then()
                 .log().all()
                 .statusCode(200)
-                .extract().body().asString();
+                .extract()
+                .body().asString();
 
         AccountDTO createdAccount = objectMapper.readValue(content, AccountDTO.class);
         accountDTO = createdAccount;
@@ -133,14 +139,16 @@ class AccountControllerJsonTest extends AbstractIntegration {
     void unBlockAccount() throws JsonProcessingException {
 
         specification.basePath("bank-api/account/unblock");
-        var content = given(specification).contentType(MediaType.APPLICATION_JSON_VALUE)
+
+        var content = given(specification).contentType(MediaType.APPLICATION_XML_VALUE)
                 .pathParams("id", accountDTO.getAccountId())
                 .when()
                 .put("{id}")
                 .then()
                 .log().all()
                 .statusCode(200)
-                .extract().body().asString();
+                .extract()
+                .body().asString();
 
         AccountDTO createdAccount = objectMapper.readValue(content, AccountDTO.class);
 
@@ -150,8 +158,8 @@ class AccountControllerJsonTest extends AbstractIntegration {
     }
 
     private void mockUser(){
-        userDTO.setName("isaias");
-        userDTO.setEmail("isaiasmuniz8@gmail.com");
-        userDTO.setPassword("adm123");
+        userDTO.setName("Rebeca");
+        userDTO.setEmail("Rebeca@email.com");
+        userDTO.setPassword("dockerCompose");
     }
 }

@@ -1,5 +1,6 @@
 package com.muniz.isaias.bank_Api_restFull.integrationtests.dto;
 
+import jakarta.xml.bind.annotation.XmlRootElement;
 import org.springframework.hateoas.RepresentationModel;
 
 import java.io.Serializable;
@@ -8,6 +9,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
+@XmlRootElement
 public class UserDTO extends RepresentationModel<UserDTO> implements Serializable {
     private static final long serialVersionUID = 1L;
 

@@ -1,7 +1,6 @@
 package com.muniz.isaias.bank_Api_restFull.dto;
 
 import org.springframework.hateoas.RepresentationModel;
-import org.springframework.hateoas.server.core.Relation;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -12,7 +11,7 @@ import java.util.Objects;
 public class UserDTO extends RepresentationModel<UserDTO> implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private Long UserId;
+    private Long userId;
     private String name;
     private String email;
     private String password;
@@ -29,11 +28,11 @@ public class UserDTO extends RepresentationModel<UserDTO> implements Serializabl
     }
 
     public Long getUserId() {
-        return UserId;
+        return userId;
     }
 
     public void setUserId(Long userId) {
-        this.UserId = userId;
+        this.userId = userId;
     }
 
     public String getName() {
@@ -80,11 +79,11 @@ public class UserDTO extends RepresentationModel<UserDTO> implements Serializabl
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         UserDTO dto = (UserDTO) o;
-        return Objects.equals(UserId, dto.UserId) && Objects.equals(name, dto.name) && Objects.equals(email, dto.email) && Objects.equals(password, dto.password) && Objects.equals(creationDate, dto.creationDate) && Objects.equals(accountDTOList, dto.accountDTOList);
+        return Objects.equals(userId, dto.userId) && Objects.equals(name, dto.name) && Objects.equals(email, dto.email) && Objects.equals(password, dto.password) && Objects.equals(creationDate, dto.creationDate) && Objects.equals(accountDTOList, dto.accountDTOList);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(UserId, name, email, password, creationDate, accountDTOList);
+        return Objects.hash(userId, name, email, password, creationDate, accountDTOList);
     }
 }
