@@ -39,7 +39,7 @@ public class TransactionService {
 
     private Logger logger = LoggerFactory.getLogger(TransactionService.class.getName());
 
-    public TransactionDTO deposit(TransactionDTO transactionDTO, Long id){
+    public TransactionDTO deposit(TransactionDTO transactionDTO, Long id)  {
         logger.info("Depositing");
         Account account = getAccount(id);
         if (transactionDTO.getType().equalsIgnoreCase("deposit")
@@ -52,7 +52,7 @@ public class TransactionService {
             var dto = parseObject(repository.save(entity), TransactionDTO.class);
             addHateoasLinks(dto);
             return dto;
-        }else throw new BadRequestException("Transaction type or Value must be greater than zero");
+        }else throw new BadRequestException("Wrong transaction type or Value less than zero");
 
     }
 
@@ -71,13 +71,14 @@ public class TransactionService {
             addHateoasLinks(dto);
 
             return dto;
-        }else throw new BadRequestException("Transaction type invalid or Value must be greater than zero");
+        }else throw new BadRequestException("Wrong transaction type or Value less than zero");
     }
 
     public TransactionDTO bankTransfer(TransactionDTO transaction, Long id, Long targetId){
         logger.info("Transferring");
         Account originAccount = getAccount(id);
         Account targetAccount = getAccount(targetId);
+        if (!targetAccount.getStatus()) throw new BadRequestException("Blocked account");
         if (transaction.getType().equalsIgnoreCase("transfer") && transaction.getValue().compareTo(BigDecimal.ZERO) > 0){
 
 
@@ -93,14 +94,12 @@ public class TransactionService {
             addHateoasLinks(dto);
 
             return dto;
-        }else throw new BadRequestException("Transaction type invalid or Value must be greater than zero");
+        }else throw new BadRequestException("Wrong transaction type or Value less than zero");
     }
 
     public PagedModel<EntityModel<TransactionDTO>> viewHistory(Long id, Pageable pageable) {
         logger.info("Viewing history");
-        var account = getAccount(id);
         var result = repository.viewAllHistory(id, pageable).map(transaction -> {
-//            transaction.setOriginAccount(account);
             var dto = parseObject(transaction, TransactionDTO.class);
             addHateoasLinks(dto);
             return dto;
@@ -116,7 +115,9 @@ public class TransactionService {
     }
 
     private Account getAccount(Long id) {
-        return accountRepository.findById(id).orElseThrow(() -> new NotFoundException());
+        var result = accountRepository.findById(id).orElseThrow(() -> new NotFoundException());
+        if (!result.getStatus()) throw new BadRequestException("Blocked account");
+        return result;
     }
 
     private void addHateoasLinks(TransactionDTO dto){

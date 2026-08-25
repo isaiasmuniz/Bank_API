@@ -92,7 +92,7 @@ class TransactionServiceTest {
         verify(repository).save(any(Transaction.class));
     }
     @Test
-    void shouldThrowIllegalArgumentException(){
+    void shouldThrowBadRequestException(){
         Transaction transaction = input.mockEntity(2);
         transaction.setValue(BigDecimal.valueOf(-2));
         transaction.setType("deposit");
@@ -102,7 +102,7 @@ class TransactionServiceTest {
         when(accountRepository.findById(2L)).thenReturn(Optional.of(transaction.getOriginAccount()));
 
         BadRequestException exception = assertThrows(BadRequestException.class, () -> service.deposit(dto, dto.getTransactionId()));
-        assertEquals("Transaction type or Value must be greater than zero", exception.getMessage());
+        assertEquals("Wrong transaction type or Value less than zero", exception.getMessage());
 
         verify(accountRepository).findById(2L);
         verify(repository, never()).save(any());
@@ -110,13 +110,13 @@ class TransactionServiceTest {
 
     @Test
     void withdrawal() {
-        Transaction transaction = input.mockEntity(5);
+        Transaction transaction = input.mockEntity(6);
         transaction.setType("withdrawal");
         Transaction persisted = transaction;
-        TransactionDTO dto = input.mockDto(5);
+        TransactionDTO dto = input.mockDto(6);
         dto.setType("withdrawal");
 
-        when(accountRepository.findById(5L)).thenReturn(Optional.of(persisted.getOriginAccount()));
+        when(accountRepository.findById(6L)).thenReturn(Optional.of(persisted.getOriginAccount()));
         when(repository.save(any(Transaction.class))).thenReturn(persisted);
 
         var result = service.withdrawal(dto, dto.getOriginAccount().getAccountId());
@@ -125,23 +125,23 @@ class TransactionServiceTest {
         assertNotNull(result.getLinks());
 
         assertTrue(result.getLinks().stream().anyMatch(link -> link.getRel().value().equals("deposit")
-                && link.getHref().endsWith("bank-api/transaction/deposit/5") && link.getType().equals("PUT")));
+                && link.getHref().endsWith("bank-api/transaction/deposit/6") && link.getType().equals("PUT")));
 
         assertTrue(result.getLinks().stream().anyMatch(link -> link.getRel().value().equals("withdrawal")
-                && link.getHref().endsWith("bank-api/transaction/withdrawal/5") && link.getType().equals("PUT")));
+                && link.getHref().endsWith("bank-api/transaction/withdrawal/6") && link.getType().equals("PUT")));
 
         assertTrue(result.getLinks().stream().anyMatch(link -> link.getRel().value().equals("bankTransfer")
-                && link.getHref().endsWith("bank-api/transaction/transfer/5/7") && link.getType().equals("PUT")));
+                && link.getHref().endsWith("bank-api/transaction/transfer/6/8") && link.getType().equals("PUT")));
 
         assertTrue(result.getLinks().stream().anyMatch(link -> link.getRel().value().equals("viewHistory")
-                && link.getHref().endsWith("bank-api/transaction/5?page=0&size=2&direction=asc") && link.getType().equals("GET")));
+                && link.getHref().endsWith("bank-api/transaction/6?page=0&size=2&direction=asc") && link.getType().equals("GET")));
 
-        assertEquals(5L, result.getTransactionId());
-        assertEquals(5L, result.getOriginAccount().getAccountId());
-        assertEquals(BigDecimal.valueOf(5), result.getValue());
+        assertEquals(6L, result.getTransactionId());
+        assertEquals(6L, result.getOriginAccount().getAccountId());
+        assertEquals(BigDecimal.valueOf(6), result.getValue());
         assertEquals(BigDecimal.valueOf(0), result.getOriginAccount().getAccountBalance());
 
-        verify(accountRepository).findById(5L);
+        verify(accountRepository).findById(6L);
         verify(repository).save(any(Transaction.class));
     }
 
@@ -159,6 +159,24 @@ class TransactionServiceTest {
         BadRequestException exception = assertThrows(BadRequestException.class, () -> service.withdrawal(dto, dto.getOriginAccount().getAccountId()));
 
         assertEquals("Insufficient account balance", exception.getMessage());
+        verify(accountRepository).findById(2L);
+        verify(repository, never()).save(any());
+    }
+
+    @Test
+    void shouldThrowValueZeroError(){
+        Transaction transaction = input.mockEntity(2);
+        transaction.setValue(BigDecimal.valueOf(0));
+        transaction.setType("deposit");
+        TransactionDTO dto = input.mockDto(2);
+        dto.setValue(BigDecimal.valueOf(0));
+        dto.setType("deposit");
+
+        when(accountRepository.findById(2L)).thenReturn(Optional.of(transaction.getOriginAccount()));
+
+        BadRequestException exception = assertThrows(BadRequestException.class, () -> service.deposit(dto, dto.getOriginAccount().getAccountId()));
+
+        assertEquals("Wrong transaction type or Value less than zero", exception.getMessage());
         verify(accountRepository).findById(2L);
         verify(repository, never()).save(any());
     }
@@ -204,28 +222,46 @@ class TransactionServiceTest {
     }
 
     @Test
+    void shouldThrowAccountBlockedException(){
+        Transaction transaction = input.mockEntity(2);
+        transaction.getOriginAccount().setStatus(false);
+        transaction.setType("deposit");
+        Transaction persisted = transaction;
+        TransactionDTO dto = input.mockDto(2);
+        dto.setType("deposit");
+
+        when(accountRepository.findById(2L)).thenReturn(Optional.of(persisted.getOriginAccount()));
+
+        BadRequestException exception = assertThrows(BadRequestException.class, () -> service.deposit(dto, 2L));
+
+        assertEquals("Blocked account", exception.getMessage());
+
+        verify(accountRepository).findById(2L);
+        verify(repository, never()).save(any());
+    }
+
+    @Test
     void viewHistory(){
-        Transaction transaction = input.mockEntity(3);
+        Transaction transaction = input.mockEntity(4);
         List<Transaction> history = new ArrayList<Transaction>();
 
-        Transaction deposit = input.mockEntity(3);
+        Transaction deposit = input.mockEntity(1);
         deposit.setType("deposit");
         deposit.setOriginAccount(transaction.getOriginAccount());
         history.add(deposit);
 
-        Transaction withdrawal = input.mockEntity(3);
+        Transaction withdrawal = input.mockEntity(1);
         withdrawal.setType("withdrawal");
         withdrawal.setOriginAccount(transaction.getOriginAccount());
         history.add(withdrawal);
 
-        Transaction transfer = input.mockEntity(3);
+        Transaction transfer = input.mockEntity(1);
         transfer.setType("transfer");
         transfer.setOriginAccount(transaction.getOriginAccount());
         history.add(transfer);
 
         Page<Transaction> mockPage = new PageImpl<>(history);
 
-        when(accountRepository.findById(3L)).thenReturn(Optional.of(transaction.getOriginAccount()));
         when(repository.viewAllHistory(any(Long.class), any(Pageable.class))).thenReturn(mockPage);
 
         var parseToDto = parseListOfObjects(history, TransactionDTO.class);
@@ -239,7 +275,7 @@ class TransactionServiceTest {
         PagedModel<EntityModel<TransactionDTO>> mockPageModel = PagedModel.of(entityModels, pageMetadata);
         when(assembler.toModel(any(Page.class), any(Link.class))).thenReturn(mockPageModel);
 
-        PagedModel<EntityModel<TransactionDTO>> result = service.viewHistory(3L, PageRequest.of(0, 2));
+        PagedModel<EntityModel<TransactionDTO>> result = service.viewHistory(4L, PageRequest.of(0, 2));
         List<TransactionDTO> trueHistory = result.getContent().stream().map(EntityModel::getContent).collect(Collectors.toList());
 
         assertNotNull(trueHistory);
@@ -249,8 +285,7 @@ class TransactionServiceTest {
         assertEquals("withdrawal", trueHistory.get(1).getType());
         assertEquals("transfer", trueHistory.get(2).getType());
 
-        verify(accountRepository).findById(3L);
-        verify(repository).viewAllHistory(eq(3L), any(Pageable.class));
+        verify(repository).viewAllHistory(eq(4L), any(Pageable.class));
         verify(assembler).toModel(any(Page.class), any(Link.class));
     }
 
@@ -265,6 +300,24 @@ class TransactionServiceTest {
         assertEquals("Not found", exception.getMessage());
 
         verify(accountRepository).findById(33L);
+        verify(repository, never()).save(any());
+    }
+
+    @Test
+    void shouldThrowInvalidTypeException(){
+        Transaction transaction = input.mockEntity(2);
+        transaction.setType("deposit");
+        Transaction persisted = transaction;
+        TransactionDTO dto = input.mockDto(2);
+        dto.setType("deposit");
+
+        when(accountRepository.findById(2L)).thenReturn(Optional.of(persisted.getOriginAccount()));
+
+        BadRequestException exception = assertThrows(BadRequestException.class, () -> service.withdrawal(dto, 2L));
+
+        assertEquals("Wrong transaction type or Value less than zero", exception.getMessage());
+
+        verify(accountRepository).findById(2L);
         verify(repository, never()).save(any());
     }
 }
